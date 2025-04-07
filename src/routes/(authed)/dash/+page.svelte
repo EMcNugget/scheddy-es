@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
-	import { CalendarCheck2, TowerControlIcon } from 'lucide-svelte';
+	import { CalendarCheck2, TowerControlIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		data: PageData;

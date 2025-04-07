@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { DateTime } from 'luxon';
 	import { goto } from '$app/navigation';
-	import { CalendarIcon, LoaderCircleIcon } from 'lucide-svelte';
+	import { CalendarIcon, LoaderCircleIcon } from '@lucide/svelte/icons';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';

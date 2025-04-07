@@ -6,7 +6,7 @@
 		PUBLIC_VATSIM_OAUTH_REDIRECT_URL
 	} from '$env/static/public';
 	import { version } from '$app/environment';
-	import { HeartIcon } from 'lucide-svelte';
+	import { HeartIcon } from '@lucide/svelte/icons';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 </script>

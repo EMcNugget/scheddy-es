@@ -9,7 +9,7 @@
 		SunIcon,
 		SunMoonIcon,
 		UserIcon
-	} from 'lucide-svelte';
+	} from '@lucide/svelte/icons';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { setMode, systemPrefersMode } from 'mode-watcher';
 

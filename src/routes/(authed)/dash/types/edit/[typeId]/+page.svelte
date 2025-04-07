@@ -5,9 +5,8 @@
 	import { toast } from 'svelte-sonner';
 	import * as Form from '$lib/components/ui/form';
 	import * as Select from '$lib/components/ui/select';
-
 	import { Input } from '$lib/components/ui/input';
-	import { LoaderCircle } from 'lucide-svelte';
+	import { LoaderCircle } from '@lucide/svelte/icons';
 	import { ratingIdDisplay, RATINGS } from '$lib/utils';
 
 	interface Props {

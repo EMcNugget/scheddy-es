@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
-	import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-svelte';
+	import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/svelte/icons';
 	import { Button } from '$lib/components/ui/button';
 
 	let {

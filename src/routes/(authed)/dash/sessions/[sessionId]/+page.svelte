@@ -7,7 +7,7 @@
 		GraduationCapIcon,
 		IdCardIcon,
 		PencilIcon
-	} from 'lucide-svelte';
+	} from '@lucide/svelte/icons';
 	import { Button } from '$lib/components/ui/button';
 	import DataDisplay from './DataDisplay.svelte';
 	import { roleOf } from '$lib';

@@ -9,7 +9,7 @@
 		LayoutGridIcon,
 		LibraryIcon,
 		UsersIcon
-	} from 'lucide-svelte';
+	} from '@lucide/svelte/icons';
 	import { ROLE_MENTOR, ROLE_STAFF, ROLE_STUDENT } from '$lib/utils';
 	import type { NestedMenuItem } from './nav';
 	import NavSection from './NavSection.svelte';
