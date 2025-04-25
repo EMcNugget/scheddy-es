@@ -4,9 +4,8 @@ import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes, students } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import { DateTime } from 'luxon';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
@@ -26,7 +25,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.from(sessions)
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
-		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+		.orderBy(desc(sessions.start));
 
 	if (roleOf(user) < ROLE_STAFF) {
 		query.where(and(eq(mentors.id, user.id), eq(sessions.cancelled, true)));
@@ -34,23 +34,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		query.where(eq(sessions.cancelled, true));
 	}
 
-	const mentorSessions = await query;
-
-	mentorSessions.sort((a, b) => {
-		const a_dt = DateTime.fromISO(a.session.start);
-		const b_dt = DateTime.fromISO(b.session.start);
-		if (a_dt < b_dt) {
-			return 1;
-		} else if (a_dt > b_dt) {
-			return -1;
-		} else {
-			return 0;
-		}
-	});
-
 	return {
 		user,
-		mentorSessions,
+		mentorSessions: await query,
 		typesMap,
 		breadcrumbs: [
 			{ title: 'Dashboard', url: '/dash' },

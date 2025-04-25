@@ -2,7 +2,7 @@ import { sessions, mentors, sessionTypes } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { loadUserData } from '$lib/userInfo';
 import type { PageServerLoad } from './$types';
-import { and, eq, gte } from 'drizzle-orm';
+import { and, asc, eq, gte } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { roleOf } from '$lib';
 import { roleString } from '$lib/utils';
@@ -18,19 +18,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.leftJoin(sessionTypes, eq(sessions.type, sessionTypes.id))
 		.where(
 			and(eq(sessions.student, user.id), gte(sessions.start, now), eq(sessions.cancelled, false))
-		);
-
-	upcomingSessions.sort((a, b) => {
-		const a_dt = DateTime.fromISO(a.session.start);
-		const b_dt = DateTime.fromISO(b.session.start);
-		if (a_dt < b_dt) {
-			return -1;
-		} else if (a_dt > b_dt) {
-			return 1;
-		} else {
-			return 0;
-		}
-	});
+		)
+		.orderBy(asc(sessions.start));
 
 	return {
 		user,

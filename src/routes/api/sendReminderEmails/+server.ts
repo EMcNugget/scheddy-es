@@ -1,23 +1,25 @@
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, students, mentors } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, gte } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
 import { reminder } from '$lib/emails/student/reminder';
 import { serverConfig } from '$lib/config/server';
 
 export async function GET() {
-	const sess = await db
+	const sessWithin24h = await db
 		.select()
 		.from(sessions)
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
-		.where(eq(sessions.reminded, false));
-
-	const sessWithin24h = sess.filter((u) => {
-		return DateTime.fromISO(u.session.start) <= DateTime.now().plus({ hours: 24 });
-	});
+		.where(
+			and(
+				eq(sessions.reminded, false),
+				eq(sessions.cancelled, false),
+				gte(sessions.start, DateTime.now().minus({ hours: 24 }).toISO())
+			)
+		);
 
 	for (const sess of sessWithin24h) {
 		const studentEmailContent = reminder({

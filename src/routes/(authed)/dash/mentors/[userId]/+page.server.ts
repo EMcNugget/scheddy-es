@@ -4,7 +4,7 @@ import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, students, mentors, users } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gte, asc } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import type { MentorAvailability } from '$lib/availability';
 import { DateTime } from 'luxon';
@@ -41,33 +41,22 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		? JSON.parse(mentor[0].bookableSessionTypes)
 		: null;
 
-	const allSessions = await db
+	const now = DateTime.utc();
+
+	const mentorSessions = await db
 		.select()
 		.from(sessions)
-		.where(and(eq(sessions.mentor, mentor[0].id), eq(sessions.cancelled, false)))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
-		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type));
-
-	const mentorSessions = [];
-	const now = DateTime.utc();
-	for (const sess of allSessions) {
-		const start = DateTime.fromISO(sess.session.start);
-		if (start < now) continue;
-		mentorSessions.push(sess);
-	}
-
-	mentorSessions.sort((a, b) => {
-		const a_dt = DateTime.fromISO(a.session.start);
-		const b_dt = DateTime.fromISO(b.session.start);
-		if (a_dt < b_dt) {
-			return -1;
-		} else if (a_dt > b_dt) {
-			return 1;
-		} else {
-			return 0;
-		}
-	});
+		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
+		.where(
+			and(
+				eq(sessions.mentor, mentor[0].id),
+				eq(sessions.cancelled, false),
+				gte(sessions.start, now.toISO())
+			)
+		)
+		.orderBy(asc(sessions.start));
 
 	let ex_changed = false;
 
