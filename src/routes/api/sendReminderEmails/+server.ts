@@ -5,9 +5,10 @@ import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
 import { reminder } from '$lib/emails/student/reminder';
 import { serverConfig } from '$lib/config/server';
+import type { SessionAndFriends } from '$lib/userInfo';
 
 export async function GET() {
-	const sessWithin24h = await db
+	const sessWithin24h = (await db
 		.select()
 		.from(sessions)
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
@@ -19,7 +20,7 @@ export async function GET() {
 				eq(sessions.cancelled, false),
 				gte(sessions.start, DateTime.now().minus({ hours: 24 }).toISO())
 			)
-		);
+		)) as unknown as SessionAndFriends[];
 
 	for (const sess of sessWithin24h) {
 		const studentEmailContent = reminder({

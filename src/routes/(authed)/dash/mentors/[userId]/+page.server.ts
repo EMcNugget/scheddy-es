@@ -1,4 +1,4 @@
-import { loadUserData } from '$lib/userInfo';
+import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_STAFF } from '$lib/utils';
 import { redirect } from '@sveltejs/kit';
@@ -11,7 +11,7 @@ import { DateTime } from 'luxon';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
-	if (roleOf(user) < ROLE_STAFF && user.id != params.userId) {
+	if (roleOf(user) < ROLE_STAFF && user.id != Number(params.userId)) {
 		redirect(307, '/schedule');
 	}
 
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const now = DateTime.utc();
 
-	const mentorSessions = await db
+	const mentorSessions = (await db
 		.select()
 		.from(sessions)
 		.leftJoin(students, eq(students.id, sessions.student))
@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 				gte(sessions.start, now.toISO())
 			)
 		)
-		.orderBy(asc(sessions.start));
+		.orderBy(asc(sessions.start))) as unknown as SessionAndFriends[];
 
 	let ex_changed = false;
 

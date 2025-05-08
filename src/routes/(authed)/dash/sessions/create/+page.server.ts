@@ -66,7 +66,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		mentorsMap[user.id] = {
 			name: user.firstName + ' ' + user.lastName,
 			availability: user.mentorAvailability,
-			timezone: user.timezone ?? 'America/New York'
+			timezone: user.timezone ?? 'America/New_York'
 		};
 	}
 
@@ -151,9 +151,11 @@ export const actions: Actions = {
 
 		const id = ulid();
 
+		const mentorId = roleOf(user) >= ROLE_STAFF ? form.data.mentor : user.id;
+
 		await db.insert(sessions).values({
 			id,
-			mentor: form.data.mentor,
+			mentor: mentorId,
 			student: form.data.student,
 			start: date.toUTC().toString(),
 			type: form.data.type,
@@ -162,7 +164,10 @@ export const actions: Actions = {
 			createdAt: DateTime.now().toISO()
 		});
 
-		const mentor = await db.select().from(users).where(eq(users.id, form.data.mentor));
+		const mentor =
+			roleOf(user) >= ROLE_STAFF
+				? [user]
+				: await db.select().from(users).where(eq(users.id, mentorId));
 		const student = await db.select().from(users).where(eq(users.id, form.data.student));
 		const type = await db.select().from(sessionTypes).where(eq(sessionTypes.id, form.data.type));
 

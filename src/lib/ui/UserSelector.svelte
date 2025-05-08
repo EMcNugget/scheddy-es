@@ -8,15 +8,16 @@
 	import Check from '@lucide/svelte/icons/check';
 	import { cn } from '$lib/utils';
 	import { computeCommandScore, useId } from 'bits-ui';
+	import type { SuperForm } from 'sveltekit-superforms';
 
 	interface Props {
 		usersMap: Record<number, string>;
-		form: never;
+		form: SuperForm<any>;
 		name: string;
-		value: string;
+		value: number;
 		label: string;
 	}
-	let { usersMap, form, name, label, value = $bindable('') }: Props = $props();
+	let { usersMap, form, name, label, value = $bindable(0) }: Props = $props();
 
 	function customFilter(commandValue: string, search: string, commandKeywords?: string[]): number {
 		const defaultScore = computeCommandScore(commandValue, search, commandKeywords);
@@ -67,21 +68,21 @@
 				<input hidden {value} name={props.name} />
 			{/snippet}
 		</Form.Control>
-		<Popover.Content class="p-0 max-w-lg">
+		<Popover.Content class="p-0 max-w-lg max-h-48 overflow-y-scroll">
 			<Command.Root filter={customFilter}>
 				<Command.Input autofocus placeholder="Search users..." class="h-9" />
-				<Command.Empty>No language found.</Command.Empty>
+				<Command.Empty>No user found.</Command.Empty>
 				<Command.Group>
 					{#each Object.entries(usersMap) as [cid, name]}
 						<Command.Item
 							value={cid}
 							onSelect={() => {
-								value = cid;
+								value = Number(cid);
 								closeAndFocusTrigger(triggerId);
 							}}
 						>
 							{name} ({cid})
-							<Check class={cn(cid !== value && 'text-transparent')} />
+							<Check class={cn(Number(cid) !== value && 'text-transparent')} />
 						</Command.Item>
 					{/each}
 				</Command.Group>
